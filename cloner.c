@@ -37,13 +37,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 void printHelp() {
-	printf("Usage: ./gertCloner -displaySrc <value> -displayDst <value> -framePeriod <value>\n");
+	printf("Usage: ./gertCloner -displaySrc <value> -displayDst <value> -framePerSecond <value>\n");
 	printf("\tdisplaySrc: corresponds to the id of the source display (Default: 0)\n");
-	printf("\tdisplayDst: corresponds to the id of the destination display (Default: 4)\n");
-	printf("\tframePeriod: delay between frames in milliseconds (Default: 15)\n");
+	printf("\tdisplayDst: corresponds to the id of the destination display (Default: 5)\n");
+	printf("\tfps: delay between frames in milliseconds (Default: 30)\n");
 }
 
-int parseFlags(int argc, char **argv, int *displaySrcID, int *displayDstID, int *framePeriod) {
+int parseFlags(int argc, char **argv, int *displaySrcID, int *displayDstID, int *framePerSecond) {
 	int ix = 1;
 	for(; ix < argc; ix++) {
 		if(argv[ix][0] != '-')
@@ -57,8 +57,8 @@ int parseFlags(int argc, char **argv, int *displaySrcID, int *displayDstID, int 
 			*displayDstID = atoi(argv[++ix]);
 			continue;
 		}
-		if(!strcmp(argv[ix]+1, "framePeriod")) {
-			*framePeriod = atoi(argv[++ix]);
+		if(!strcmp(argv[ix]+1, "fps")) {
+			*framePerSecond = atoi(argv[++ix]);
 			continue;
 		}
 
@@ -78,10 +78,15 @@ int parseFlags(int argc, char **argv, int *displaySrcID, int *displayDstID, int 
 		return -3;
 	}
 
-	if(*framePeriod < 1) {
-		printf("Frame period can't have a value lower than one. (current: %i)\n", *framePeriod);
+	if(*framePerSecond < 1) {
+		printf("Frame period can't have a value lower than one. (current: %i)\n", *framePerSecond);
 		return -4;
 	}
+    
+    if(*framePerSecond > 120) {
+        printf("Frame period can't have a value greater than 120. (current: %i)\n", *framePerSecond);
+        return -4;
+    }
 
 	return 0;
 }
@@ -93,9 +98,9 @@ void loopHandler(int sig) {
 
 int main(int argc, char **argv) {
 	int displaySrcID = 0;
-	int displayDstID = 4;
-	int framePeriod  = 15;
-	if(parseFlags(argc, argv, &displaySrcID, &displayDstID, &framePeriod))
+	int displayDstID = 5;
+	int framePerSecond  = 30;
+	if(parseFlags(argc, argv, &displaySrcID, &displayDstID, &framePerSecond))
 		return -1;
 
 	DISPMANX_DISPLAY_HANDLE_T   displaySrc;
@@ -156,7 +161,7 @@ int main(int argc, char **argv) {
 	signal(SIGINT, loopHandler);
 	while(LOOPER) {
 		vc_dispmanx_snapshot( displaySrc, resource, 0 );
-		usleep(framePeriod * 1000);
+		usleep(1000000/framePerSecond);
 	}
 
 	printf("Quitting...\n");
