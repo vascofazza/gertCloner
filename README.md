@@ -14,7 +14,7 @@ and you should get the same image on both screens.
 ## Command line options
 * `-help | -h:` Displays help and flag information.
 * `-displaySrc:` ID of the source display. (Default: 0)
-* `-displayDst:` ID of the destination display. (Default: 4)
+* `-displayDst:` ID of the destination display. (Default: 5)
 * `-fps:` Delay between frames in milliseconds. (Default: 15)
 
 ## How it works
